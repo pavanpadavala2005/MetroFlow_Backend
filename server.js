@@ -5,7 +5,6 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 
 import app from "./src/app.js";
-
 import { connectDatabase } from "./src/config/db.js";
 
 import {
@@ -29,16 +28,13 @@ const startServer = async () => {
         // Connect MySQL
         await connectDatabase();
 
-
         // Create HTTP server
         const server = createServer(app);
-
 
         // Initialize Socket.IO
         const io = new Server(server, {
             cors: {
-                origin:
-                    process.env.CLIENT_URL ||
+                origin: process.env.CLIENT_URL ||
                     "http://localhost:5173",
 
                 methods: ["GET", "POST"],
@@ -47,39 +43,24 @@ const startServer = async () => {
             }
         });
 
-
         // Initialize socket events
         initializeTrackingSockets(io);
-
 
         // Start train simulation
         startTrainSimulation(io);
 
-
         // Start HTTP server
-        server.listen(PORT, () => {
+        server.listen(PORT, "0.0.0.0", () => {
 
+            console.log("================================");
             console.log("       METROFLOW SERVER");
+            console.log("================================");
+
             console.log(`Server running on port ${PORT}`);
-
-            console.log(
-                `API: http://localhost:${PORT}`
-            );
-
-            console.log(
-                `Health: http://localhost:${PORT}/api/health`
-            );
-
-            console.log(
-                `Socket.IO: Enabled`
-            );
-
-            console.log(
-                `Train Simulation: Running`
-            );
+            console.log("Socket.IO: Enabled");
+            console.log("Train Simulation: Running");
 
         });
-
 
         // Graceful shutdown
         const shutdown = () => {
@@ -90,6 +71,7 @@ const startServer = async () => {
                 console.log("HTTP server closed");
                 process.exit(0);
             });
+
         };
 
         process.on("SIGINT", shutdown);
@@ -100,11 +82,13 @@ const startServer = async () => {
 
         console.error(
             "Unable to start MetroFlow:",
-            error.message
+            error
         );
 
         process.exit(1);
+
     }
+
 };
 
 
